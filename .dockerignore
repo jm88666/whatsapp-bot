@@ -13,3 +13,5 @@ Dockerfile
 .DS_Store
 .vscode
 .idea
+.wwebjs_auth
+.wwebjs_cache
