@@ -1,20 +1,35 @@
-# Gebaseerd op Node 18 met alle nodige libs voor Puppeteer
-FROM ghcr.io/puppeteer/puppeteer:latest
+FROM node:18-slim
 
-# Werkmap maken
+RUN apt-get update && apt-get install -y \
+  wget \
+  ca-certificates \
+  fonts-liberation \
+  libappindicator3-1 \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libatk1.0-0 \
+  libcups2 \
+  libdbus-1-3 \
+  libgdk-pixbuf2.0-0 \
+  libnspr4 \
+  libnss3 \
+  libx11-xcb1 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  xdg-utils \
+  libgbm-dev \
+  libgconf-2-4 \
+  libxss1 \
+  libgtk-3-0 \
+  --no-install-recommends && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Kopieer dependency files
 COPY package*.json ./
-
-# Installeer afhankelijkheden
 RUN npm install
 
-# Kopieer alle bestanden
 COPY . .
 
-# Expose poort
-EXPOSE 8080
-
-# Start de bot
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]
