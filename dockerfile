@@ -1,5 +1,6 @@
 FROM node:18-slim
 
+# Install dependencies voor WhatsApp Web
 RUN apt-get update && apt-get install -y \
   wget \
   ca-certificates \
@@ -27,9 +28,17 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
 COPY . .
 
+# Expose port
+EXPOSE 3000
+
+# Start application
 CMD ["npm", "start"]
