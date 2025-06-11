@@ -1,3 +1,9 @@
+FROM ghcr.io/puppeteer/puppeteer:21.6.1
+
+# Switch to root to install dependencies
+USER root
+WORKDIR /app
+
 # Install dependencies for Puppeteer
 RUN apt-get update && apt-get install -y \
     gconf-service \
@@ -39,3 +45,21 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies
+RUN npm ci --omit=dev
+
+# Copy source code
+COPY . .
+
+# Switch back to puppeteer user
+USER pptruser
+
+# Expose port
+EXPOSE 3000
+
+# Start application
+CMD ["npm", "start"]
