@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install dependencies voor WhatsApp Web
+# Install dependencies voor WhatsApp Web + missing libraries
 RUN apt-get update && apt-get install -y \
   wget \
   ca-certificates \
@@ -23,6 +23,20 @@ RUN apt-get update && apt-get install -y \
   libgconf-2-4 \
   libxss1 \
   libgtk-3-0 \
+  libglib2.0-0 \
+  libgobject-2.0-0 \
+  libgtk-3-dev \
+  libnotify-dev \
+  libnss3-dev \
+  libxss-dev \
+  libxtst6 \
+  libatspi2.0-0 \
+  libdrm2 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libxss1 \
+  libxtst6 \
   --no-install-recommends && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
