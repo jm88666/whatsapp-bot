@@ -4,6 +4,7 @@ FROM node:18-slim
 # Stel environment variabelen in
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    CHROME_BIN=/usr/bin/chromium \
     DEBIAN_FRONTEND=noninteractive
 
 # Update package lists en installeer Chromium + alle benodigde dependencies
