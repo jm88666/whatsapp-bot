@@ -1,4 +1,4 @@
-# Gebruik Node.js 18 slim als basis (kleiner dan de volledige versie)
+# Gebruik Node.js 18 slim als basis
 FROM node:18-slim
 
 # Stel environment variabelen in
@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     wget \
     gnupg \
+    curl \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -44,6 +45,7 @@ RUN apt-get update && apt-get install -y \
 # Maak een non-root user voor veiligheid
 RUN groupadd -r botuser && useradd -r -g botuser -G audio,video botuser \
     && mkdir -p /home/botuser/Downloads \
+    && mkdir -p /home/botuser/.local-chromium \
     && chown -R botuser:botuser /home/botuser
 
 # Stel werkmap in
