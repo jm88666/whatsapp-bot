@@ -1,0 +1,40 @@
+# Build de Docker image
+docker build -t whatsapp-web-bot .
+
+# Run de container (basic)
+docker run -p 8080:8080 --name whatsapp-bot whatsapp-web-bot
+
+# Run de container met volume voor persistente auth data
+docker run -d \
+  --name whatsapp-bot \
+  -p 8080:8080 \
+  -v whatsapp_auth:/home/botuser/.wwebjs_auth \
+  --restart unless-stopped \
+  whatsapp-web-bot
+
+# Bekijk logs
+docker logs whatsapp-bot
+
+# Bekijk logs live
+docker logs -f whatsapp-bot
+
+# Stop en verwijder container
+docker stop whatsapp-bot
+docker rm whatsapp-bot
+
+# Bekijk QR code voor eerste keer inloggen
+curl http://localhost:8080/qr
+
+# Check status
+curl http://localhost:8080/status
+
+# Health check
+curl http://localhost:8080/health
+
+# Verstuur een bericht (na inloggen)
+curl -X POST http://localhost:8080/send \
+  -H "Content-Type: application/json" \
+  -d '{
+    "number": "31612345678",
+    "message": "Hallo vanuit de bot!"
+  }'
