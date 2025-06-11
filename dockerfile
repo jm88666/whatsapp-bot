@@ -1,44 +1,7 @@
-FROM node:18-slim
+FROM ghcr.io/puppeteer/puppeteer:21.6.1
 
-# Install dependencies voor WhatsApp Web + missing libraries
-RUN apt-get update && apt-get install -y \
-  wget \
-  ca-certificates \
-  fonts-liberation \
-  libappindicator3-1 \
-  libasound2 \
-  libatk-bridge2.0-0 \
-  libatk1.0-0 \
-  libcups2 \
-  libdbus-1-3 \
-  libgdk-pixbuf2.0-0 \
-  libnspr4 \
-  libnss3 \
-  libx11-xcb1 \
-  libxcomposite1 \
-  libxdamage1 \
-  libxrandr2 \
-  xdg-utils \
-  libgbm-dev \
-  libgconf-2-4 \
-  libxss1 \
-  libgtk-3-0 \
-  libglib2.0-0 \
-  libgobject-2.0-0 \
-  libgtk-3-dev \
-  libnotify-dev \
-  libnss3-dev \
-  libxss-dev \
-  libxtst6 \
-  libatspi2.0-0 \
-  libdrm2 \
-  libxcomposite1 \
-  libxdamage1 \
-  libxrandr2 \
-  libxss1 \
-  libxtst6 \
-  --no-install-recommends && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+# Switch to root to install dependencies
+USER root
 
 WORKDIR /app
 
@@ -46,7 +9,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
+
+# Switch back to puppeteer user
+USER pptruser
 
 # Copy source code
 COPY . .
