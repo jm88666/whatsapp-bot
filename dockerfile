@@ -4,7 +4,7 @@ FROM ghcr.io/puppeteer/puppeteer:21.6.1
 USER root
 WORKDIR /app
 
-# Install dependencies for Puppeteer
+# Install all required libs
 RUN apt-get update && apt-get install -y \
     gconf-service \
     libasound2 \
@@ -46,20 +46,16 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Copy package files & install node modules
 COPY package*.json ./
-
-# Install Node.js dependencies
 RUN npm ci --omit=dev
 
-# Copy source code
+# Copy the rest
 COPY . .
-
-# Switch back to puppeteer user
-USER pptruser
 
 # Expose port
 EXPOSE 3000
 
-# Start application
+# Run app as pptruser
+USER pptruser
 CMD ["npm", "start"]
