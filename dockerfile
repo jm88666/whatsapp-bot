@@ -1,12 +1,11 @@
 FROM ghcr.io/puppeteer/puppeteer:21.6.1
 
-# Switch to root to install dependencies
+# Switch to root
 USER root
-WORKDIR /app
 
-# Install all required libs
+# Install necessary libs for Chromium
 RUN apt-get update && apt-get install -y \
-    gconf-service \
+    libgobject-2.0-0 \
     libasound2 \
     libatk1.0-0 \
     libc6 \
@@ -46,16 +45,18 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files & install node modules
+WORKDIR /app
+
+# Copy package files en install dependencies
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy the rest
+# Copy rest van de source code
 COPY . .
 
-# Expose port
-EXPOSE 3000
-
-# Run app as pptruser
+# Switch to puppeteer user
 USER pptruser
+
+# Expose en run
+EXPOSE 8080
 CMD ["npm", "start"]
