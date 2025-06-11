@@ -1,9 +1,9 @@
 FROM ghcr.io/puppeteer/puppeteer:21.6.1
 
-# Switch to root
+# Switch to root user to install dependencies
 USER root
 
-# Install necessary libs for Chromium
+# Install dependencies required by Chromium
 RUN apt-get update && apt-get install -y \
     libgobject-2.0-0 \
     libasound2 \
@@ -45,18 +45,19 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files en install dependencies
+# Copy dependencies and install
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy rest van de source code
+# Copy all source code
 COPY . .
 
 # Switch to puppeteer user
 USER pptruser
 
-# Expose en run
+# Expose port and start
 EXPOSE 8080
 CMD ["npm", "start"]
