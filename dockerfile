@@ -1,63 +1,74 @@
-FROM ghcr.io/puppeteer/puppeteer:21.6.1
+# Gebruik Node.js 18 slim als basis (kleiner dan de volledige versie)
+FROM node:18-slim
 
-# Switch to root user to install dependencies
-USER root
+# Stel environment variabelen in
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies required by Chromium
+# Update package lists en installeer Chromium + alle benodigde dependencies
 RUN apt-get update && apt-get install -y \
-    libgobject-2.0-0 \
-    libasound2 \
-    libatk1.0-0 \
-    libc6 \
-    libcairo2 \
-    libcups2 \
-    libdbus-1-3 \
-    libexpat1 \
-    libfontconfig1 \
-    libgcc1 \
-    libgconf-2-4 \
-    libgdk-pixbuf2.0-0 \
+    # Chromium browser
+    chromium \
+    # Basis libraries voor Chromium
     libglib2.0-0 \
-    libgtk-3-0 \
-    libnspr4 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libstdc++6 \
-    libx11-6 \
-    libx11-xcb1 \
-    libxcb1 \
-    libxcomposite1 \
-    libxcursor1 \
-    libxdamage1 \
-    libxext6 \
-    libxfixes3 \
-    libxi6 \
-    libxrandr2 \
-    libxrender1 \
-    libxss1 \
-    libxtst6 \
-    ca-certificates \
-    fonts-liberation \
-    libappindicator1 \
     libnss3 \
-    lsb-release \
-    xdg-utils \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgtk-3-0 \
+    libgtk-4-1 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libxss1 \
+    libasound2 \
+    libatspi2.0-0 \
+    # Font support
+    fonts-liberation \
+    fonts-noto-color-emoji \
+    fonts-noto-cjk \
+    # Utilities
+    ca-certificates \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    gnupg \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Set working directory
+# Maak een non-root user voor veiligheid
+RUN groupadd -r botuser && useradd -r -g botuser -G audio,video botuser \
+    && mkdir -p /home/botuser/Downloads \
+    && chown -R botuser:botuser /home/botuser
+
+# Stel werkmap in
 WORKDIR /app
 
-# Copy dependencies and install
+# Kopieer package files
 COPY package*.json ./
-RUN npm ci --omit=dev
 
-# Copy all source code
+# Installeer Node.js dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Kopieer de rest van de applicatie
 COPY . .
 
-# Switch to puppeteer user
-USER pptruser
+# Verander eigenaarschap naar botuser
+RUN chown -R botuser:botuser /app
 
-# Expose port and start
+# Switch naar non-root user
+USER botuser
+
+# Expose poort 8080
 EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Start de applicatie
 CMD ["npm", "start"]
